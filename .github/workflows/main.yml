@@ -1,18 +1,20 @@
-name: Sync To Gitee
-
-on: [ push, delete, create ]
+name: Sync to Gitee
+on:
+  push:
+    branches: [ "master", "main" ]  # 监听这些分支的推送事件
+  schedule:
+    - cron: "0 3 * * *"  # 可选：每天 UTC 时间 3 点自动同步（北京时间 11 点）
 
 jobs:
-  build:
+  sync:
     runs-on: ubuntu-latest
     steps:
-      - name: Sync to Gitee
-        uses: wearerequired/git-mirror-action@master
-        env:
-          # 注意在 Settings->Secrets 配置 GITEE_RSA_PRIVATE_KEY
-          SSH_PRIVATE_KEY: 19180f9eb61288d96019e508bbf5ead4 
+      - name: Checkout GitHub code
+        uses: actions/checkout@v4
         with:
-          # 注意替换为你的 GitHub 源仓库地址
-          source-repo: https://github.com/yuyuan-wang-qq/edk2-tianocode-wyy-sync.git
-          # 注意替换为你的 Gitee 目标仓库地址
-          destination-repo: https://gitee.com/wyuyuan/edk2-tianocore.git
+          fetch-depth: 0  # 获取全部历史提交（避免浅克隆导致推送失败）
+
+      - name: Mirror to Gitee
+        run: |
+          git remote add gitee https://${{ wyuyuan }}:${{ bd598b9b7fcdc1466868571b375b978a }}@gitee.com/wyuyuan/repo.git
+          git push --force --mirror gitee  # 强制镜像推送（覆盖 Gitee 仓库）
