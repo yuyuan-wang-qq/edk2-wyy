@@ -1,0 +1,28 @@
+name: Sync EDK2 Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # 每天 UTC 0 点同步（可调整）
+  workflow_dispatch:      # 支持手动触发
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 获取完整 Git 历史
+
+      - name: Add Upstream Remote
+        run: |
+          git remote add upstream https://github.com/tianocore/edk2.git
+          git fetch upstream
+
+      - name: Merge Upstream
+        run: |
+          git checkout main  # 假设你的默认分支是 main
+          git config --global user.name "wangyy"
+          git config --global user.email "371847573@qq.com"
+          git merge upstream/main
+          git push origin main
